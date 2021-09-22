@@ -83,7 +83,6 @@ func seekToNegativeLine(file *os.File, lineNumber int) error {
 	currentLine := 0
 	lineSep := []byte{'\n'}
 	var currentOffset int64 = BufferSize
-	var step = 1
 	var extra = 1
 
 	for {
@@ -110,6 +109,7 @@ func seekToNegativeLine(file *os.File, lineNumber int) error {
 		}
 
 		if fileInfo.Size() < BufferSize || currentOffset != BufferSize {
+			//there is no more lines to count in the file, just show all file from the beginning
 			_, err = file.Seek(0, io.SeekStart)
 			return nil
 		}
@@ -129,7 +129,6 @@ func seekToNegativeLine(file *os.File, lineNumber int) error {
 			currentOffset = BufferSize
 		}
 		_, err = file.Seek(-seekOffset, io.SeekCurrent)
-		step++
 
 		if err != nil {
 			return err
@@ -138,7 +137,6 @@ func seekToNegativeLine(file *os.File, lineNumber int) error {
 }
 
 func seekToLine(file *os.File, lineNumber int) error {
-
 	if lineNumber > 0 {
 		return seekToPositiveLine(file, lineNumber)
 	} else if lineNumber < 0 {
@@ -149,9 +147,7 @@ func seekToLine(file *os.File, lineNumber int) error {
 }
 
 func command() error {
-
 	if fileName := flag.Arg(0); fileName != "" {
-
 		file, err := os.Open(fileName)
 		if err != nil {
 			return err
@@ -170,7 +166,6 @@ func command() error {
 }
 
 func main() {
-
 	initFlags()
 	if err := validateArgs(os.Args[0:]); err == nil {
 		if err := command(); err != nil {
